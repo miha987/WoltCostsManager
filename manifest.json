@@ -1,0 +1,33 @@
+{
+	"name": "Wolt Manager",
+	"description": "This is my wolt manager",
+	"version": "1.0",
+	"manifest_version": 3,
+	// "background": {
+	//     "service_worker": "background.js"
+	// },
+	"permissions": ["storage", "activeTab"],
+	// "action": {
+	// 	"default_popup": "popup.html"
+	// },
+	// "commands": {
+	//     "open_bookmark_explorer" : {
+	//         "suggested_key": {
+	//              "default": "Ctrl+B" 
+	//         },
+	//         "description": "Opens bookmarks explorer"
+	//     }
+	// },
+	"content_scripts": [
+		{
+		  "matches": ["https://wolt.com/*checkout"],
+		  "js": ["content_scripts/costs_manager.js"]
+		}
+	],
+	"web_accessible_resources": [{
+	    "resources": [
+	    	"templates/modal_window.html"
+	    ],
+	    "matches": ["<all_urls>"]
+	}]
+}
