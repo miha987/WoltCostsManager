@@ -10,9 +10,9 @@
         "https://secure.splitwise.com/*"
     ],
 	"permissions": ["storage", "activeTab"],
-	// "action": {
-	// 	"default_popup": "popup.html"
-	// },
+	"action": {
+		"default_popup": "settings_popup.html"
+	},
 	// "commands": {
 	//     "open_bookmark_explorer" : {
 	//         "suggested_key": {

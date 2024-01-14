@@ -1,0 +1,83 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wolt cotst manager</title>
+
+    <style>
+        .settings {
+            padding: 10px;
+        }
+
+        .settings .settings__save-button {
+            margin-top: 10px;
+        }
+
+        .settings .settings__save-button button {
+            width: 100%;
+        }
+
+        .settings .settings__main-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .settings .settings__title {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .settings .settings__options {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 270px;
+        }
+
+        .settings .settings__options .settings__option {
+            display: flex;
+        }
+
+        .settings .settings__options .settings__option .settings__option__title {
+            width: 100px;
+        }
+
+        .settings .settings__options .settings__option .settings__option__input {
+
+        }
+    </style>
+
+</head>
+<body>
+    <div class="settings">
+        <div class="settings__main-title">
+            Wolt Costs Manager
+        </div>
+        <div class="settings__title">
+            Stripe settings
+        </div>
+        <div class="settings__options">
+            <div class="settings__option">
+                <div class="settings__option__title">
+                    Group ID:
+                </div>
+                <input class="settings__option__input" type="text" id="stripe-group-id" />
+            </div>
+
+            <div class="settings__option">
+                <div class="settings__option__title">
+                    API KEY:
+                </div>
+                <input class="settings__option__input" type="password" id="stripe-api-key" />
+            </div>
+        </div>
+        <div class="settings__save-button">
+            <button id="save-stripe-settings-btn">Save</button>
+        </div>
+    </div>
+
+    <script src="settings_popup.js"></script>
+</body>
+</html>

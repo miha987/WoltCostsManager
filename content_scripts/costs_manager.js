@@ -162,7 +162,7 @@
 			
 			// let priceElement = itemElement.querySelector('[data-test-id="menu-item-presentational.price"]');
 			
-			let priceElement = itemElement.querySelector('[data-test-id="CartItemName"]').nextElementSibling.firstChild;
+			let priceElement = itemElement.querySelector('[data-test-id="CartItemName"]').nextElementSibling.nextElementSibling.firstChild;
 
 			let price = priceElement.innerHTML.replaceAll('€', '').replaceAll(',', '.').replaceAll(' ', '').replaceAll('&nbsp;', '').trim();
 
@@ -323,10 +323,11 @@
 
 		let deliveryFeeElement = document.querySelector('[data-test-id="order.checkout-delivery-default"] span');
 		if (deliveryFeeElement)
-			costsObj.deliveryFee = deliveryFeeElement.innerHTML;
-
-
-		let serviceFeeElement = document.querySelector('[class^="OrderSummary-module__priceItem"]');
+		costsObj.deliveryFee = deliveryFeeElement.innerHTML;
+	
+	
+		// let serviceFeeElement = document.querySelector('[class^="OrderSummary-module__priceItem"]');
+		let serviceFeeElement = document.querySelector('[data-test-id="Order.ServiceFee"] span');
 		if (serviceFeeElement)
 			costsObj.serviceFee = serviceFeeElement.innerHTML;
 
@@ -358,6 +359,7 @@
 	setInterval(() => {
 		// console.log("LOCATION PATHNAME", window.location.pathname);
 		onCheckout = window.location.pathname.includes('/checkout');
+		// onGroupOrder = window.location.pathname.includes('/group-order');
 
 		if (!onCheckout)
 			return;
@@ -385,7 +387,7 @@
 	// 	console.log(event.state);
 	// });
 
-	console.log("TUKI!");
+	console.log("TUKI33!");
 
 	chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
 	    if (data.type == 'setGroupUsers') {

@@ -1,8 +1,8 @@
-// TODO add to config!!
-let apiKey = 'ZpUkk7SlvqgayWf9AP2exevkjVAEGbWjjfofeDs9';
-// let groupId = 33000588; // datastat
-let groupId = 32922268; // test
+let apiKey = ''; // This is retreived from users input into popup
+let groupId = 0; // This is retreived from users input into popup
 let splitwiseBaseUrl = 'https://secure.splitwise.com/api/v3.0';
+
+retreiveStripeSettings();
 
 chrome.runtime.onInstalled.addListener(() => {
 	console.log('TEST!');
@@ -20,6 +20,16 @@ chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
     if (data.type == 'settleCosts') {
         console.log("SETTLING COSTS IN THE BACKGROUND");
         settleCosts(data.costsObj);
+    }
+
+	if (data.type == 'getStripeSettings') {
+        console.log("GETING STRIPE SETTINGS");
+        getStripeSettings();
+    }
+
+	if (data.type == 'saveStripeSettings') {
+        console.log("SAVING STRIPE SETTINGS");
+        saveStripeSettings(data.stripeSettingsObj);
     }
 
     sendResponse();
@@ -137,6 +147,31 @@ function settleCosts(costs) {
 	}
 }
 
+function saveStripeSettings(stripeSettings) {
+	// TODO make validation
+	console.log("SAVING STRIPE SETTINGS", stripeSettings);
+
+	chrome.storage.sync.set({ 
+		"stripeApiKey": stripeSettings.apiKey, 
+		"stripeGroupId": stripeSettings.groupId 
+	}, function(){
+		retreiveStripeSettings();
+	});
+}
+
+function retreiveStripeSettings() {
+	// TODO make validation
+
+	chrome.storage.sync.get(["stripeApiKey", "stripeGroupId"], function(items) {
+		console.log("STRIPE SETTINGS ITEMS", items);
+
+		apiKey = items.stripeApiKey;
+		groupId = items.stripeGroupId;
+
+		sendStripeSettings();
+	});
+}
+
 async function finishedSettlingCosts() {
 	let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
@@ -164,6 +199,20 @@ function getUsersFromSplitwiseGroup() {
 			groupUsers: groupUsers
 		});
 
+	});
+}
+
+function getStripeSettings() {
+	sendStripeSettings();
+}
+
+function sendStripeSettings() {
+	chrome.runtime.sendMessage({
+		type: "setStripeSettings",
+		stripeSettings: {
+			"apiKey" : apiKey,
+			"groupId" : groupId
+		}
 	});
 }
 
