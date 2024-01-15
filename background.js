@@ -4,13 +4,11 @@ let splitwiseBaseUrl = 'https://secure.splitwise.com/api/v3.0';
 
 retreiveStripeSettings();
 
-chrome.runtime.onInstalled.addListener(() => {
-	console.log('TEST!');
-});
+// chrome.runtime.onInstalled.addListener(() => {
+// 	console.log('TEST!');
+// });
 
 chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
-	console.log("TUKI!");
-	console.log(data);
 
     if (data.type == 'getGroupUsers') {
         console.log("GETING GROUP USERS");
@@ -36,8 +34,6 @@ chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
 });
 
 function settleCosts(costs) {
-	console.log("BACK COSTS", costs);
-
 	let deliveryShare = null;
 	let deliveryShareReminder = null;
 	let uniquePersonsIds = null;
@@ -55,17 +51,12 @@ function settleCosts(costs) {
 
 		uniquePersonsIds = uniquePersonsIds.filter(id => id != -1);
 
-		console.log("UNIQUE IDS", uniquePersonsIds);
 		deliveryShareFloat = (parseFloat(costs.deliveryFee) / uniquePersonsIds.length).toFixed(2);
 		deliveryShare = deliveryShareFloat.toString();
 
 		// let deliveryShareReminder = parseFloat(costs.deliveryFee) - (deliveryShareFloat * uniquePersonsIds.length);
 		let deliveryShareMultipleRounded = Math.round(((deliveryShareFloat * uniquePersonsIds.length) + Number.EPSILON) * 100) / 100;
 		deliveryShareReminder =  (parseFloat(costs.deliveryFee) - deliveryShareMultipleRounded + Number.EPSILON).toFixed(2);
-		console.log("DELIVERY SHARE", deliveryShare);
-		console.log("DELIVERY SHARE MULTIPLIED", deliveryShareMultipleRounded);
-		console.log("DELIVERY SHARE REMINDER", deliveryShareReminder);
-
 	}
 
 	let numberOfRequestsMade = 0;
@@ -94,15 +85,12 @@ function settleCosts(costs) {
 		};
 
 		makeSplitwisePOSTRequest(`/create_expense`, expanseObj, resp => {
-			console.log("EXPANSE RESP", resp);
 			iterateSettleCostsRequests();
 		});
 
 	});
 
 	if (deliveryShare) {
-		console.log("INCLUDED", uniquePersonsIds.includes(costs.paid_by_person_id*1));
-
 		let deliveryExpanseObj = {
 			cost: costs.deliveryFee,
 			description: "Wolt order delivery fee",
@@ -123,24 +111,17 @@ function settleCosts(costs) {
 			deliveryExpanseObj[`users__${user_counter}__user_id`] = uniquePersonsIds[i];
 			deliveryExpanseObj[`users__${user_counter}__paid_share`] = '0';
 			deliveryExpanseObj[`users__${user_counter}__owed_share`] = user_counter > 1 ? deliveryShare : (deliveryShare*1 + deliveryShareReminder*1).toString();
-			
-			console.log("USER PAID", deliveryExpanseObj[`users__${user_counter}__owed_share`]);
 
 			user_counter += 1;
 		}
 
-		console.log("deliveryExpanseObj", deliveryExpanseObj);
-
 		makeSplitwisePOSTRequest(`/create_expense`, deliveryExpanseObj, resp => {
-			console.log("EXPANSE RESP", resp);
 			iterateSettleCostsRequests();
 		});
 	}
 
 	function iterateSettleCostsRequests() {
 		numberOfRequestsMade +=1;
-
-		console.log(`MADE ${numberOfRequestsMade}/${numberOfRequestsToMake} REQUESTS`);
 
 		if (numberOfRequestsMade == numberOfRequestsToMake)
 			finishedSettlingCosts()
@@ -149,7 +130,6 @@ function settleCosts(costs) {
 
 function saveStripeSettings(stripeSettings) {
 	// TODO make validation
-	console.log("SAVING STRIPE SETTINGS", stripeSettings);
 
 	chrome.storage.local.set({ 
 		"stripeApiKey": stripeSettings.apiKey, 
@@ -163,8 +143,6 @@ function retreiveStripeSettings() {
 	// TODO make validation
 
 	chrome.storage.local.get(["stripeApiKey", "stripeGroupId"], function(items) {
-		console.log("STRIPE SETTINGS ITEMS", items);
-
 		apiKey = items.stripeApiKey;
 		groupId = items.stripeGroupId;
 
@@ -182,15 +160,13 @@ async function finishedSettlingCosts() {
 
 function getUsersFromSplitwiseGroup() {
 	makeSplitwiseGETRequest(`/get_group/${groupId}`, async resp => {
-		console.log(resp);
+		// console.log(resp);
 		let groupUsers = resp.group.members.map(member => {
 			return {
 				id: member.id,
 				name: `${member.first_name ? member.first_name : ''} ${member.last_name ? member.last_name : ''}`
 			}
 		});
-
-		console.log("GROUP MEMBERS", groupUsers);
 
 		let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 

@@ -30,8 +30,6 @@
 		payForPersonContainerElement.style.display = 'flex';
 		payForPersonContainerElement.style.alignItems = 'center';
 
-		console.log("THIS PRICE?1", price);
-
 		let payForPersonDropdownHTML = generatePayForPersonDropdownHTML(price, itemName, canBeRemoved);
 
 		payForPersonContainerElement.innerHTML = payForPersonDropdownHTML;
@@ -63,7 +61,6 @@
 		costsDropdownsContainer.classList.add('costs-dropdowns-container');
 
 		for (var i = 0; i < splitByNum; i++) {
-			console.log("THIS PRICE?2", price);
 			let payForPersonContainerElement = generatePayForPersoDropdownElement(costsDropdownsContainer, price, itemName, false);
 			costsDropdownsContainer.appendChild(payForPersonContainerElement)
 		}
@@ -112,20 +109,14 @@
 		let priceShareMultipleRounded = Math.round(((priceShareFloat * numberOfSplits) + Number.EPSILON) * 100) / 100;
 		let priceShareReminder =  (parseFloat(itemPrice) - priceShareMultipleRounded + Number.EPSILON).toFixed(2);
 
-		console.log("CONTAINERS", itemDropdownContainers);
-
 		for (var i = 0; i < itemDropdownContainers.length; i++) {
 			let itemDropdown = itemDropdownContainers[i].querySelector('.pay-for-person-select');
 			let itemPriceLabel = itemDropdownContainers[i].querySelector('.pay-for-person-price-label');
-			console.log("DD", itemDropdown);
-			console.log("LB", itemPriceLabel);
 
 			let newPrice = priceShare;
 
 			if (i == 0)
 				newPrice = (priceShare*1 + priceShareReminder*1).toFixed(2).toString();
-
-			console.log("NEW PRICEE!", newPrice);
 
 			itemDropdown.dataset.price = newPrice;
 			itemPriceLabel.innerHTML = `${newPrice}€`;
@@ -161,22 +152,14 @@
 		for (var i = 0; i < orderedItems.length; i++) {
 			let itemElement = orderedItems[i];
 
-			console.log("ITEM ELEMENT", itemElement);
-			
-			// let priceElement = itemElement.querySelector('[data-test-id="menu-item-presentational.price"]');
 			
 			let priceElement = itemElement.querySelector(priceElementSelector).nextElementSibling.nextElementSibling.firstChild;
 
 			let price = priceElement.innerHTML.replaceAll('€', '').replaceAll(',', '.').replaceAll(' ', '').replaceAll('&nbsp;', '').trim();
 
-			// console.log("AAAA", priceElement.innerHTML);
-
-
 			let itemNameElement = itemElement.querySelector(itemNameSelector);
-			// let itemName = itemNameElement.childNodes[1].textContent;
 			let itemName = itemNameElement.innerHTML;
 
-			console.log("NAME", itemName);
 			
 			let numberOfOrderedItems = 1;
 
@@ -189,18 +172,13 @@
 				numberOfOrderedItems = numberOfOrderedItemsElement.innerHTML.trim()*1;
 			}
 			
-			console.log("SSS", numberOfOrderedItems);
-			
 			// TODO!! HANDLE  UNEQUAL SPLITS!!
 			let singleItemPrice = (price*1) / numberOfOrderedItems*1;
 			
-			console.log("PRICE", price);
-			console.log("SINGLE ITEM PRICE", singleItemPrice);
 			let costsContainerElement = document.createElement("div");
 			costsContainerElement.classList.add('costs-container');
 
 			for (var j = 0; j < numberOfOrderedItems; j++) {
-				// let payForPersonContainerElement = generatePayForPersoDropdownElement(singleItemPrice, itemName);
 				let itemCostsContainerElement = generateItemCostsContainerElement(singleItemPrice, itemName, 1);
 
 				costsContainerElement.appendChild(itemCostsContainerElement)
@@ -208,8 +186,6 @@
 			
 			itemElement.appendChild(costsContainerElement)
 
-
-			// console.log("CENA", price);
 		}
 
 		let personsSelects = document.querySelectorAll('.pay-for-person-select');
@@ -305,8 +281,6 @@
 
 		let payByPersonId = document.getElementById('pay-by-person-select').value;
 
-		console.log("PAID BY", payByPersonId);
-
 		let costsObj = {
 			paid_by_person_id: payByPersonId,
 			paid_for: [],
@@ -338,8 +312,6 @@
 		if (serviceFeeElement)
 			costsObj.serviceFee = serviceFeeElement.innerHTML;
 
-
-		console.log("COSTS OBJ", costsObj);
 
 		chrome.runtime.sendMessage({
 			type: "settleCosts",
@@ -405,7 +377,8 @@
 
 		// TODO - do this better!
 		if (!onGroupOrder)
-			orderedItemsGroupOrder = 0;
+			orderedItemsGroupOrder = [];
+
 
 		if (orderedItemsCheckout.length == 0 && orderedItemsGroupOrder.length == 0) {
 			console.log("NO ELEMENTS YET, SKIPING...");
@@ -426,12 +399,6 @@
 
 	}, 300);
 
-	// window.addEventListener('popstate', function (event) {
-	// 	console.log("PAGE CHANGED!");
-	// 	console.log(event.state);
-	// });
-
-	console.log("TUKI33!");
 
 	chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
 	    if (data.type == 'setGroupUsers') {
@@ -454,7 +421,6 @@
 				return 0;
 			});
 
-	        console.log("GG", groupUsers);
 
 	        groupUsers.push({
 	        	id: -1,
