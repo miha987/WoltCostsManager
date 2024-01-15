@@ -1,6 +1,6 @@
 {
-	"name": "Wolt Manager",
-	"description": "This is my wolt manager",
+	"name": "Wolt Costs Manager",
+	"description": "This is my wolt costs manager",
 	"version": "1.0",
 	"manifest_version": 3,
 	"background": {
@@ -13,17 +13,8 @@
 	"action": {
 		"default_popup": "settings_popup.html"
 	},
-	// "commands": {
-	//     "open_bookmark_explorer" : {
-	//         "suggested_key": {
-	//              "default": "Ctrl+B" 
-	//         },
-	//         "description": "Opens bookmarks explorer"
-	//     }
-	// },
 	"content_scripts": [
 		{
-		  // "matches": ["https://wolt.com/*checkout"],
 		  "matches": ["https://wolt.com/*"],
 		  "js": ["content_scripts/costs_manager.js"]
 		}

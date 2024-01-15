@@ -151,7 +151,7 @@ function saveStripeSettings(stripeSettings) {
 	// TODO make validation
 	console.log("SAVING STRIPE SETTINGS", stripeSettings);
 
-	chrome.storage.sync.set({ 
+	chrome.storage.local.set({ 
 		"stripeApiKey": stripeSettings.apiKey, 
 		"stripeGroupId": stripeSettings.groupId 
 	}, function(){
@@ -162,7 +162,7 @@ function saveStripeSettings(stripeSettings) {
 function retreiveStripeSettings() {
 	// TODO make validation
 
-	chrome.storage.sync.get(["stripeApiKey", "stripeGroupId"], function(items) {
+	chrome.storage.local.get(["stripeApiKey", "stripeGroupId"], function(items) {
 		console.log("STRIPE SETTINGS ITEMS", items);
 
 		apiKey = items.stripeApiKey;
