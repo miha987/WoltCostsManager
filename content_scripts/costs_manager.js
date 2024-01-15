@@ -4,6 +4,7 @@
 	let groupUsersSet = false;
 	let componentInitialized = false;
 	let onCheckout = false;
+	let onGroupOrder = false;
 
 	let numberOfSplitsMapping = {};
 
@@ -154,31 +155,39 @@
 	}
 
 
-	function generatePayForPersonDropdownsElements() {
-		let orderedItems = document.querySelectorAll('[data-test-id="CartItem"]');
+	function generatePayForPersonDropdownsElements(orderedItemsSelector, priceElementSelector, itemNameSelector, numberOfOrderedItemsSelector) {
+		let orderedItems = document.querySelectorAll(orderedItemsSelector);
 
 		for (var i = 0; i < orderedItems.length; i++) {
 			let itemElement = orderedItems[i];
+
+			console.log("ITEM ELEMENT", itemElement);
 			
 			// let priceElement = itemElement.querySelector('[data-test-id="menu-item-presentational.price"]');
 			
-			let priceElement = itemElement.querySelector('[data-test-id="CartItemName"]').nextElementSibling.nextElementSibling.firstChild;
+			let priceElement = itemElement.querySelector(priceElementSelector).nextElementSibling.nextElementSibling.firstChild;
 
 			let price = priceElement.innerHTML.replaceAll('€', '').replaceAll(',', '.').replaceAll(' ', '').replaceAll('&nbsp;', '').trim();
 
 			// console.log("AAAA", priceElement.innerHTML);
 
 
-			let itemNameElement = itemElement.querySelector('[data-test-id="CartItemName"]');
+			let itemNameElement = itemElement.querySelector(itemNameSelector);
 			// let itemName = itemNameElement.childNodes[1].textContent;
 			let itemName = itemNameElement.innerHTML;
 
 			console.log("NAME", itemName);
 			
-			
-			let numberOfOrderedItemsElement = itemElement.querySelector('[data-test-id="CartItemStepperValue"]');
-			// let numberOfOrderedItems = numberOfOrderedItemsElement.dataset.value*1;
-			let numberOfOrderedItems = numberOfOrderedItemsElement.innerHTML.trim()*1;
+			let numberOfOrderedItems = 1;
+
+			// In checkout, if there are multiple "items" of the same type, each one can have different payer.
+			// In group pay, each "item" has only one payer.
+			// TODO - this can probably be handled better
+			if (numberOfOrderedItemsSelector) {
+				let numberOfOrderedItemsElement = itemElement.querySelector(numberOfOrderedItemsSelector);
+				// let numberOfOrderedItems = numberOfOrderedItemsElement.dataset.value*1;
+				numberOfOrderedItems = numberOfOrderedItemsElement.innerHTML.trim()*1;
+			}
 			
 			console.log("SSS", numberOfOrderedItems);
 			
@@ -224,10 +233,9 @@
 		</select>`;
 	}
 
-	function generatePayByPersonComponent() {
-		let selectedItemsHElementContainer = document.querySelector('[data-test-id="OrderItemsList"] h3').parentElement;
+	function generatePayByPersonComponent(selectedItemsContainerSelector) {
+		let selectedItemsHElementContainer = document.querySelector(selectedItemsContainerSelector).parentElement;
 
-		console.log("selectedItemsHElementContainer");
 
 		let payByPersonComponentContainerElement = document.createElement("div");
 		payByPersonComponentContainerElement.classList.add('pay-by-person-container');
@@ -248,10 +256,9 @@
 		</button>`;
 	}
 
-	function generateSettleCostsButton() {
+	function generateSettleCostsButton(orderItemsListElementSelector) {
 		// let orderItemsListElement = document.querySelector('[data-test-id="TitledItemsList"]');
-		let orderItemsListElement = document.querySelector('[data-test-id="OrderItemsList"]');
-		console.log("MIHAAAAA!!");
+		let orderItemsListElement = document.querySelector(orderItemsListElementSelector);
 
 		let settleCostsButtonContainerElement = document.createElement("div");
 		settleCostsButtonContainerElement.id = 'settle-costs-btn';
@@ -344,14 +351,40 @@
 
 	}
 
-	function initComponent() {
-		console.log("INITIALIZING WOLT COMPONENT...");
+	function initCheckoutComponent() {
+		console.log("INITIALIZING CHECKOUT WOLT COMPONENT...");
 		componentInitialized = true;
 
+		let selectedItemsContainerSelector = '[data-test-id="OrderItemsList"] h3';
 
-		generatePayByPersonComponent();
-		generatePayForPersonDropdownsElements();
-		generateSettleCostsButton();
+		let orderedItemsSelector = '[data-test-id="CartItem"]';
+		let priceElementSelector = '[data-test-id="CartItemName"]';
+		let itemNameSelector = '[data-test-id="CartItemName"]';
+		let numberOfOrderedItemsSelector = '[data-test-id="CartItemStepperValue"]';
+
+		let orderItemsListElementSelector = '[data-test-id="OrderItemsList"]';
+
+		generatePayByPersonComponent(selectedItemsContainerSelector);
+		generatePayForPersonDropdownsElements(orderedItemsSelector, priceElementSelector, itemNameSelector, numberOfOrderedItemsSelector);
+		generateSettleCostsButton(orderItemsListElementSelector);
+	}
+
+	function initGroupOrderComponent() {
+		console.log("INITIALIZING GROUP ORDER WOLT COMPONENT...");
+		componentInitialized = true;
+
+		let selectedItemsContainerSelector = '#mainContent div:nth-child(3) div:nth-child(2) div div div div:has(h3)';
+
+		let orderedItemsSelector = '#tabpanel0 ul li';
+		let priceElementSelector = 'a div:nth-child(2) div div';
+		let itemNameSelector = 'a div:nth-child(2) div div span';
+		let numberOfOrderedItemsSelector = null;
+
+		let orderItemsListElementSelector = '#mainContent div:nth-child(3) div:nth-child(2) div div:has(button+button)';
+
+		generatePayByPersonComponent(selectedItemsContainerSelector);
+		generatePayForPersonDropdownsElements(orderedItemsSelector, priceElementSelector, itemNameSelector, numberOfOrderedItemsSelector);
+		generateSettleCostsButton(orderItemsListElementSelector);
 	}
 		
 	getUsersFromSplitwiseGroup();
@@ -359,17 +392,22 @@
 	setInterval(() => {
 		// console.log("LOCATION PATHNAME", window.location.pathname);
 		onCheckout = window.location.pathname.includes('/checkout');
-		// onGroupOrder = window.location.pathname.includes('/group-order');
+		onGroupOrder = window.location.pathname.includes('/group-order');
 
-		if (!onCheckout)
+		if (!onCheckout && !onGroupOrder)
 			return;
 
 		if (componentInitialized)
 			return;
 
-		let orderedItems = document.querySelectorAll('[data-test-id="CartItem"]');
+		let orderedItemsCheckout = document.querySelectorAll('[data-test-id="CartItem"]');
+		let orderedItemsGroupOrder = document.querySelectorAll('#tabpanel0 ul li');
 
-		if (orderedItems.length == 0) {
+		// TODO - do this better!
+		if (!onGroupOrder)
+			orderedItemsGroupOrder = 0;
+
+		if (orderedItemsCheckout.length == 0 && orderedItemsGroupOrder.length == 0) {
 			console.log("NO ELEMENTS YET, SKIPING...");
 			return;
 		}
@@ -379,7 +417,13 @@
 			return;
 		}
 
-		initComponent();
+		if (onGroupOrder) {
+			initGroupOrderComponent();
+		} else if (onCheckout) {
+			initCheckoutComponent();
+		}
+
+
 	}, 300);
 
 	// window.addEventListener('popstate', function (event) {
